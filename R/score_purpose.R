@@ -1,19 +1,34 @@
+#' Score 8-item Purpose in Life Questionnaire
+#'
+#' Calculate mean scores, tScores, and percentiles from raw Purpose in Life data. Input raw data from survey as a dataframe, and recieve a scored dataframe as output
+#'
+#' @param input_df dataframe
+#' @param idVar string
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' score_purpose(survey_raw_data, "ResponseId")
+
+load("data/purpose.rda")
+
 score_purpose <- function(input_df, idVar){
   purpose_factored <- input_df %>%
-    select(idVar, starts_with('purpose')) %>%
-    mutate_at(vars(starts_with('purpose')),
+    dplyr::select(idVar, dplyr::starts_with('purpose')) %>%
+    dplyr::mutate_at(dplyr::vars(dplyr::starts_with('purpose')),
               ~factor(., levels = c("Strongly disagree", "Somewhat disagree", "Neither agree nor disagree",
                                     "Somewhat agree", "Strongly agree")))
 
 
   purpose_num <- purpose_factored %>%
-    mutate_at(vars(starts_with('purpose')),
+    dplyr::mutate_at(dplyr::vars(dplyr::starts_with('purpose')),
               ~case_when(. == 'Strongly disagree' ~ 1,
                          . == 'Somewhat disagree' ~ 2,
                          . == 'Neither agree nor disagree' ~ 3,
                          . == 'Somewhat agree' ~ 4,
                          . == 'Strongly agree' ~ 5)) %>%
-    rename_at(vars(starts_with('purpose')),
+    dplyr::rename_at(dplyr::vars(dplyr::starts_with('purpose')),
               ~paste0(., '_num'))
 
 
@@ -27,16 +42,16 @@ score_purpose <- function(input_df, idVar){
 
   ## 8 Item
   purpose_scored <- purpose_reversed %>%
-    mutate(purpose_index = rowSums(select(., purpose_1_num, purpose_2_num,
+    dplyr::mutate(purpose_index = rowSums(dplyr::select(., purpose_1_num, purpose_2_num,
                                           purpose_4_num:purpose_7_num,
                                           purpose_11_num, purpose_12r_num), na.rm = T),
-           purpose_mean = rowMeans(select(., purpose_1_num, purpose_2_num,
+           purpose_mean = rowMeans(dplyr::select(., purpose_1_num, purpose_2_num,
                                           purpose_4_num:purpose_7_num,
                                           purpose_11_num, purpose_12r_num), na.rm = T))
 
   # purpose_scored <- purpose_reversed %>%
-  #   mutate(purpose_index = rowSums(select(., purpose_1_num, purpose_3r_num, purpose_4_num:purpose_6_num, purpose_12r_num)),
-  #          purpose_mean = rowMeans(select(., purpose_1_num, purpose_3r_num,
+  #   dplyr::mutate(purpose_index = rowSums(dplyr::select(., purpose_1_num, purpose_3r_num, purpose_4_num:purpose_6_num, purpose_12r_num)),
+  #          purpose_mean = rowMeans(dplyr::select(., purpose_1_num, purpose_3r_num,
   #                                         purpose_4_num:purpose_6_num, purpose_12r_num), na.rm = T))
 
 
@@ -66,7 +81,7 @@ score_purpose <- function(input_df, idVar){
   test <- Purpose_per_t_scoring(purpose_clean)
 
   purpose_clean2 <- cbind(purpose_clean, test) %>%
-    select(idVar, purpose_mean, purpose_index, Percent, TScore, everything())
+    dplyr::select(idVar, purpose_mean, purpose_index, Percent, TScore, everything())
 
   return(purpose_clean2)
 }
