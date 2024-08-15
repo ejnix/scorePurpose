@@ -18,24 +18,25 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
 
 
   # Housekeeping
-    # converts Purpose_prefix to lowercase if needed
-    if(any(grepl('Purpose', names(input_df)))){
-      df <- dplyr::rename_at(input_df, dplyr::vars(dplyr::starts_with('Purpose')),
-                             ~tolower(.))
-      upper_prefix = T
-    } else {
-      df <- input_df
-      upper_prefix = F
-    }
+  # converts Purpose_prefix to lowercase if needed
+  if(any(grepl('Purpose', names(input_df)))){
+    df <- dplyr::rename_at(input_df, dplyr::vars(dplyr::starts_with('Purpose')),
+                           ~tolower(.))
+    upper_prefix = T
 
-    # abbreviates purpose_in_life prefix if necessary
-  if(any(grepl('purpose_in_life', names(input_df)))){
+  } else if (any(grepl('purpose_in_life', names(input_df)))){ # abbreviates purpose_in_life prefix if necessary
     df <- dplyr::rename_at(input_df, dplyr::vars(dplyr::starts_with('purpose_in_life')),
                            ~gsub('_in_life', '', .))
     verbose_prefix = T
+
+  } else if (any(grepl('pil', names(input_df)))){   # extends pil prefix if necessary
+    df <- dplyr::rename_at(input_df, dplyr::vars(dplyr::starts_with('pil')),
+                           ~gsub('pil', 'purpose', .))
+    abrv_prefix = T
+
   } else {
     df <- input_df
-    verbose_prefix = F
+    standard_prefix = T
   }
 
 
@@ -76,7 +77,7 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
 
   # Isolate and factor variables
   purpose_raw <- dplyr::mutate_at(df, dplyr::vars(dplyr::starts_with('purpose')),
-                               ~stringr::str_to_title(.))
+                                  ~stringr::str_to_title(.))
 
   purpose_raw <- dplyr::mutate_at(purpose_raw, dplyr::vars(dplyr::starts_with('purpose')),
                                   ~factor(., levels = c("Strongly Disagree",
@@ -95,7 +96,7 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
   # Determine presence of underscore in col_names
   if(sum(grepl('purpose_\\d+', names(s))) == 6|sum(grepl('purpose_\\d+', names(s))) == 12){
     underscore = T
-  }else if(sum(grepl('npss\\d+', names(s))) == 6|sum(grepl('npss\\d+', names(s))) == 12){
+  }else if(sum(grepl('purpose\\d+', names(s))) == 6|sum(grepl('purpose\\d+', names(s))) == 12){
     underscore = F
   }else{
     warning('Column Names are in an unrecognized format. Format should be purpose_#')
@@ -152,19 +153,19 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
     purpose_num <-
       dplyr::mutate(purpose_num,
                     purpose_index = ifelse(rowSums(is.na(dplyr::select(purpose_num, purpose_1_num, purpose_2_num, purpose_3r_num,
-                                                                  purpose_4_num:purpose_11_num, purpose_12r_num)))  # checks if missing values exceed missing threshold for each row
-                                      < ncol(dplyr::select(purpose_num, purpose_1_num, purpose_2_num, purpose_3r_num,
-                                                           purpose_4_num:purpose_11_num, purpose_12r_num)) * missing_threshold,
-                                      rowSums(dplyr::select(purpose_num, purpose_1_num, purpose_2_num, purpose_3r_num,
-                                                            purpose_4_num:purpose_11_num, purpose_12r_num), na.rm = T),
-                                      NA),
+                                                                       purpose_4_num:purpose_11_num, purpose_12r_num)))  # checks if missing values exceed missing threshold for each row
+                                           < ncol(dplyr::select(purpose_num, purpose_1_num, purpose_2_num, purpose_3r_num,
+                                                                purpose_4_num:purpose_11_num, purpose_12r_num)) * missing_threshold,
+                                           rowSums(dplyr::select(purpose_num, purpose_1_num, purpose_2_num, purpose_3r_num,
+                                                                 purpose_4_num:purpose_11_num, purpose_12r_num), na.rm = T),
+                                           NA),
                     purpose_mean = ifelse(rowSums(is.na(dplyr::select(purpose_num, purpose_1_num, purpose_2_num, purpose_3r_num,
-                                                                   purpose_4_num:purpose_11_num, purpose_12r_num)))  # checks if missing values exceed missing threshold for each row
-                                       < ncol(dplyr::select(purpose_num, purpose_1_num, purpose_2_num, purpose_3r_num,
-                                                            purpose_4_num:purpose_11_num, purpose_12r_num)) * missing_threshold,
-                                       rowMeans(dplyr::select(purpose_num, purpose_1_num, purpose_2_num, purpose_3r_num,
-                                                              purpose_4_num:purpose_11_num, purpose_12r_num), na.rm = T),
-                                       NA))
+                                                                      purpose_4_num:purpose_11_num, purpose_12r_num)))  # checks if missing values exceed missing threshold for each row
+                                          < ncol(dplyr::select(purpose_num, purpose_1_num, purpose_2_num, purpose_3r_num,
+                                                               purpose_4_num:purpose_11_num, purpose_12r_num)) * missing_threshold,
+                                          rowMeans(dplyr::select(purpose_num, purpose_1_num, purpose_2_num, purpose_3r_num,
+                                                                 purpose_4_num:purpose_11_num, purpose_12r_num), na.rm = T),
+                                          NA))
 
 
 
@@ -173,9 +174,9 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
 
   }else if (form == 'short'){
 
-      purpose_num$purpose_6r_num <- purpose_num$purpose_6_num*(-1)+6
+    purpose_num$purpose_6r_num <- purpose_num$purpose_6_num*(-1)+6
 
-      purpose_num <- dplyr::select(purpose_num, -purpose_6_num)
+    purpose_num <- dplyr::select(purpose_num, -purpose_6_num)
 
 
 
@@ -201,8 +202,8 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
   # Percent Missingness
 
   purpose_num <- dplyr::mutate(purpose_num,
-                            purpose_NApct = rowSums(is.na(dplyr::select(purpose_num, dplyr::matches('purpose(.*)_num'))))
-                            / ncol(dplyr::select(purpose_num, dplyr::matches('purpose(.*)_num'))))
+                               purpose_NApct = rowSums(is.na(dplyr::select(purpose_num, dplyr::matches('purpose(.*)_num'))))
+                               / ncol(dplyr::select(purpose_num, dplyr::matches('purpose(.*)_num'))))
 
 
 
@@ -214,35 +215,35 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
 
 
 
-if (tscore == T){
-  Purpose_single_scoring <- function(val, table) {
-    # print(val)
-    val <- round(val, digits = 4)
-    p <- with(table, setNames(percents, raw))[toString(val)]
-    t <- with(table, setNames(tScores, raw))[toString(val)]
+  if (tscore == T){
+    Purpose_single_scoring <- function(val, table) {
+      # print(val)
+      val <- round(val, digits = 4)
+      p <- with(table, setNames(percents, raw))[toString(val)]
+      t <- with(table, setNames(tScores, raw))[toString(val)]
 
-    return(c(p, t))
-  }
-
-  Purpose_per_t_scoring <- function(df){
-
-    Purpose <- data.frame(Percent = NA, TScore = NA)
-
-
-    for (row in seq(nrow(df))) {
-      Purpose[row, c("Percent", "TScore")] <- Purpose_single_scoring(df$purpose_mean[row], purpose)
+      return(c(p, t))
     }
-    return(Purpose)
+
+    Purpose_per_t_scoring <- function(df){
+
+      Purpose <- data.frame(Percent = NA, TScore = NA)
+
+
+      for (row in seq(nrow(df))) {
+        Purpose[row, c("Percent", "TScore")] <- Purpose_single_scoring(df$purpose_mean[row], purpose)
+      }
+      return(Purpose)
+    }
+
+    test <- Purpose_per_t_scoring(purpose_clean)
+
+    purpose_clean2 <- cbind(purpose_clean, test) |>
+      dplyr::select(idVar, purpose_mean, purpose_index, Percent, TScore, everything())
+
+    return(purpose_clean2)
+
   }
-
-  test <- Purpose_per_t_scoring(purpose_clean)
-
-  purpose_clean2 <- cbind(purpose_clean, test) |>
-    dplyr::select(idVar, purpose_mean, purpose_index, Percent, TScore, everything())
-
-  return(purpose_clean2)
-
-}
 
 
 
@@ -270,20 +271,51 @@ if (tscore == T){
   #
   # }
 
+
+
   if (verbose_prefix == T){
+    first_var = grep('purpose', names(purpose_scored), value = T)[1]
+
     if (underscore == T){
-      purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before='purpose_in_life_1')
+      purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before=first_var)
     } else if (underscore == F){
-      purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before='purpose_in_life1')
+      purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before=first_var)
     }
 
   }
 
-  if (verbose_prefix == F){
+
+  if (abrv_prefix == T){
+    first_var = grep('pil', names(purpose_scored), value = T)[1]
+
     if (underscore == T){
-      purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before='purpose_1')
+      purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before=first_var)
     } else if (underscore == F){
-      purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before='purpose1')
+      purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before=first_var)
+    }
+
+  }
+
+
+
+  if (verbose_prefix == F){
+    first_var = grep('purpose', names(purpose_scored), value = T)[1]
+
+    if (underscore == T){
+      purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before=first_var)
+    } else if (underscore == F){
+      purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before=first_var)
+    }
+
+  }
+
+  if (abrv_prefix == F){
+    first_var = grep('purpose', names(purpose_scored), value = T)[1]
+
+    if (underscore == T){
+      purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before=first_var)
+    } else if (underscore == F){
+      purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before=first_var)
     }
 
   }
@@ -295,6 +327,7 @@ if (tscore == T){
   return(purpose_scored) # Returns only input_df with added subscales. All factoring, etc. does not remain
 
 }
+
 
 load("data/purpose.rda")
 
