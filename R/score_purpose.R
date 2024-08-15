@@ -24,19 +24,23 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
                            ~tolower(.))
     upper_prefix = T
 
-  } else if (any(grepl('purpose_in_life', names(input_df)))){ # abbreviates purpose_in_life prefix if necessary
+  } if (any(grepl('purpose_in_life', names(input_df)))){ # abbreviates purpose_in_life prefix if necessary
     df <- dplyr::rename_at(input_df, dplyr::vars(dplyr::starts_with('purpose_in_life')),
                            ~gsub('_in_life', '', .))
     verbose_prefix = T
 
-  } else if (any(grepl('pil', names(input_df)))){   # extends pil prefix if necessary
+  } if (any(grepl('pil', names(input_df)))){   # extends pil prefix if necessary
     df <- dplyr::rename_at(input_df, dplyr::vars(dplyr::starts_with('pil')),
                            ~gsub('pil', 'purpose', .))
     abrv_prefix = T
 
-  } else {
+  } if (any(grepl('purpose', names(input_df)))){ # checks if standard prefix is used
     df <- input_df
     standard_prefix = T
+  }
+
+  if(sum(upper_prefix, verbose_prefix, abrv_prefix, standard_prefix) > 1){
+    stop("Prefix of Purpose in Life data does not match an expected format: purpose, Purpose, purpose_in_life, pil. Please check data and be sure column names match an expected format")
   }
 
 
@@ -298,8 +302,8 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
 
 
 
-  if (verbose_prefix == F){
-    first_var = grep('purpose', names(purpose_scored), value = T)[1]
+  if (upper_prefix == T){
+    first_var = grep('Purpose', names(purpose_scored), value = T)[1]
 
     if (underscore == T){
       purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before=first_var)
@@ -309,7 +313,7 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
 
   }
 
-  if (abrv_prefix == F){
+  if (standard_prefix == T){
     first_var = grep('purpose', names(purpose_scored), value = T)[1]
 
     if (underscore == T){
