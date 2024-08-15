@@ -4,7 +4,7 @@
 #'
 #' @format A data frame with 52 rows and 3 variables
 #' \describe{
-#' \item{raw}{purpose in life mean score}
+#' \item{raw}{purpose in life sum score}
 #' \item{percents}{percentile for given mean score}
 #' \item{tScores}{tScore for given mean score}
 #' }

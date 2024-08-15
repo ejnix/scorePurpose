@@ -256,11 +256,11 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
 
     Purpose_per_t_scoring <- function(df){
 
-      Purpose <- data.frame(Percent = NA, TScore = NA)
+      Purpose <- data.frame(purpose_Percent = NA, purpose_TScore = NA)
 
 
       for (row in seq(nrow(df))) {
-        Purpose[row, c("Percent", "TScore")] <- Purpose_single_scoring(df$purpose_mean[row], purpose)
+        Purpose[row, c("purpose_Percent", "purpose_TScore")] <- Purpose_single_scoring(df$purpose_index[row], purpose)
       }
       return(Purpose)
     }
@@ -269,7 +269,7 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
 
     purpose_clean <- cbind(purpose_clean, test)
 
-    purpose_clean <- dplyr::select(purpose_clean, unique_id_for_merging, purpose_index, purpose_mean, Percent, TScore, everything())
+    purpose_clean <- dplyr::select(purpose_clean, unique_id_for_merging, purpose_index, purpose_mean, purpose_Percent, purpose_TScore, everything())
 
 
   }
@@ -363,4 +363,5 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
 utils::globalVariables(c("purpose_12r_num", "purpose_1_num", "purpose_2_num", "purpose_3_num",
                          "purpose_3r_num", "purpose_4_num", "purpose_5_num", "purpose_6_num",
                          "purpose_6r_num", "purpose_NApct", "purpose_index", "purpose_mean",
-                         "unique_id_for_merging", "Percent", "TScore", "everything", "purpose_11_num", "purpose_12_num"))
+                         "unique_id_for_merging", "purpose_Percent", "purpose_TScore", "everything",
+                         "purpose_11_num", "purpose_12_num"))
