@@ -42,7 +42,7 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
     abrv_prefix = T
 
   }
-  if (any(grepl('purpose', names(input_df)))){ # checks if standard prefix is used
+  if (any(grepl('purpose_\\d', names(input_df)))){ # checks if standard prefix is used
     df <- input_df
     standard_prefix = T
   }
