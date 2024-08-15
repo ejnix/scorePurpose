@@ -22,24 +22,24 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
   if(any(grepl('Purpose', names(input_df)))){
     df <- dplyr::rename_at(input_df, dplyr::vars(dplyr::starts_with('Purpose')),
                            ~tolower(.))
-    upper_prefix = T
+    prefix_form = 'upper'
 
   }
   if (any(grepl('purpose_in_life', names(input_df)))){ # abbreviates purpose_in_life prefix if necessary
     df <- dplyr::rename_at(input_df, dplyr::vars(dplyr::starts_with('purpose_in_life')),
                            ~gsub('_in_life', '', .))
-    verbose_prefix = T
+    prefix_form = 'verbose'
 
   }
   if (any(grepl('pil', names(input_df)))){   # extends pil prefix if necessary
     df <- dplyr::rename_at(input_df, dplyr::vars(dplyr::starts_with('pil')),
                            ~gsub('pil', 'purpose', .))
-    abrv_prefix = T
+    prefix_form = 'abrv'
 
   }
   if (any(grepl('purpose', names(input_df)))){ # checks if standard prefix is used
     df <- input_df
-    standard_prefix = T
+    prefix_form = 'standard'
   }
 
   if(sum(upper_prefix, verbose_prefix, abrv_prefix, standard_prefix) > 1){
@@ -280,7 +280,7 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
 
 
 
-  if (verbose_prefix == T){
+  if (prefix_form == 'verbose'){
     first_var = grep('purpose', names(purpose_scored), value = T)[1]
 
     if (underscore == T){
@@ -292,7 +292,7 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
   }
 
 
-  if (abrv_prefix == T){
+  if (prefix_form == 'abrv'){
     first_var = grep('pil', names(purpose_scored), value = T)[1]
 
     if (underscore == T){
@@ -305,7 +305,7 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
 
 
 
-  if (upper_prefix == T){
+  if (prefix_form == 'upper'){
     first_var = grep('Purpose', names(purpose_scored), value = T)[1]
 
     if (underscore == T){
@@ -316,7 +316,7 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
 
   }
 
-  if (standard_prefix == T){
+  if (prefix_form == 'standard'){
     first_var = grep('purpose', names(purpose_scored), value = T)[1]
 
     if (underscore == T){
