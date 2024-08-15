@@ -18,28 +18,33 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
 
 
   # Housekeeping
+  upper_prefix = F
+  verbose_prefix = F
+  abrv_prefix = F
+  standard_prefix = F
+
   # converts Purpose_prefix to lowercase if needed
   if(any(grepl('Purpose', names(input_df)))){
     df <- dplyr::rename_at(input_df, dplyr::vars(dplyr::starts_with('Purpose')),
                            ~tolower(.))
-    prefix_form = 'upper'
+    upper_prefix = T
 
   }
   if (any(grepl('purpose_in_life', names(input_df)))){ # abbreviates purpose_in_life prefix if necessary
     df <- dplyr::rename_at(input_df, dplyr::vars(dplyr::starts_with('purpose_in_life')),
                            ~gsub('_in_life', '', .))
-    prefix_form = 'verbose'
+    verbose_prefix = T
 
   }
   if (any(grepl('pil', names(input_df)))){   # extends pil prefix if necessary
     df <- dplyr::rename_at(input_df, dplyr::vars(dplyr::starts_with('pil')),
                            ~gsub('pil', 'purpose', .))
-    prefix_form = 'abrv'
+    abrv_prefix = T
 
   }
   if (any(grepl('purpose', names(input_df)))){ # checks if standard prefix is used
     df <- input_df
-    prefix_form = 'standard'
+    standard_prefix = T
   }
 
   if(sum(upper_prefix, verbose_prefix, abrv_prefix, standard_prefix) > 1){
@@ -280,7 +285,7 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
 
 
 
-  if (prefix_form == 'verbose'){
+  if (verbose_prefix == T){
     first_var = grep('purpose', names(purpose_scored), value = T)[1]
 
     if (underscore == T){
@@ -292,7 +297,7 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
   }
 
 
-  if (prefix_form == 'abrv'){
+  if (abrv_prefix == T){
     first_var = grep('pil', names(purpose_scored), value = T)[1]
 
     if (underscore == T){
@@ -305,7 +310,7 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
 
 
 
-  if (prefix_form == 'upper'){
+  if (upper_prefix == T){
     first_var = grep('Purpose', names(purpose_scored), value = T)[1]
 
     if (underscore == T){
@@ -316,7 +321,7 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
 
   }
 
-  if (prefix_form == 'standard'){
+  if (standard_prefix == T){
     first_var = grep('purpose', names(purpose_scored), value = T)[1]
 
     if (underscore == T){
