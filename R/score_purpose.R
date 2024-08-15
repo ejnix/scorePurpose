@@ -267,10 +267,10 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
 
     test <- Purpose_per_t_scoring(purpose_clean)
 
-    purpose_clean2 <- cbind(purpose_clean, test) |>
-      dplyr::select(idVar, purpose_mean, purpose_index, Percent, TScore, everything())
+    purpose_clean <- cbind(purpose_clean, test)
 
-    return(purpose_clean2)
+    purpose_clean <- dplyr::select(purpose_clean, unique_id_for_merging, purpose_index, purpose_mean, Percent, TScore, everything())
+
 
   }
 
