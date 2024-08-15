@@ -18,14 +18,24 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
 
 
   # Housekeeping
-  # converts Purpose_prefix to lowercase if needed
-  if(any(grepl('Purpose', names(input_df)))){
-    df <- dplyr::rename_at(input_df, dplyr::vars(dplyr::starts_with('Purpose')),
-                           ~tolower(.))
-    upper_prefix = T
+    # converts Purpose_prefix to lowercase if needed
+    if(any(grepl('Purpose', names(input_df)))){
+      df <- dplyr::rename_at(input_df, dplyr::vars(dplyr::starts_with('Purpose')),
+                             ~tolower(.))
+      upper_prefix = T
+    } else {
+      df <- input_df
+      upper_prefix = F
+    }
+
+    # abbreviates purpose_in_life prefix if necessary
+  if(any(grepl('purpose_in_life', names(input_df)))){
+    df <- dplyr::rename_at(input_df, dplyr::vars(dplyr::starts_with('purpose_in_life')),
+                           ~gsub('_in_life', '', .))
+    verbose_prefix = T
   } else {
     df <- input_df
-    upper_prefix = F
+    verbose_prefix = F
   }
 
 
@@ -242,20 +252,38 @@ if (tscore == T){
 
 
 
-  if (upper_prefix == F){
+  # if (upper_prefix == F){
+  #   if (underscore == T){
+  #     purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before='purpose_1')
+  #   }else if (underscore == F){
+  #     purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before='purpose1')
+  #   }
+  #
+  # }
+  #
+  # if (upper_prefix == T){
+  #   if (underscore == T){
+  #     purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before='Purpose_1')
+  #   } else if (underscore == F){
+  #     purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before='Purpose1')
+  #   }
+  #
+  # }
+
+  if (verbose_prefix == T){
     if (underscore == T){
-      purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before='purpose_1')
-    }else if (underscore == F){
-      purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before='purpose1')
+      purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before='purpose_in_life_1')
+    } else if (underscore == F){
+      purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before='purpose_in_life1')
     }
 
   }
 
-  if (upper_prefix == T){
+  if (verbose_prefix == F){
     if (underscore == T){
-      purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before='Purpose_1')
+      purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before='purpose_1')
     } else if (underscore == F){
-      purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before='Purpose1')
+      purpose_scored <- dplyr::relocate(purpose_scored, names(purpose_clean), .before='purpose1')
     }
 
   }
