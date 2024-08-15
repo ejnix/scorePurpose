@@ -24,17 +24,20 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
                            ~tolower(.))
     upper_prefix = T
 
-  } if (any(grepl('purpose_in_life', names(input_df)))){ # abbreviates purpose_in_life prefix if necessary
+  }
+  if (any(grepl('purpose_in_life', names(input_df)))){ # abbreviates purpose_in_life prefix if necessary
     df <- dplyr::rename_at(input_df, dplyr::vars(dplyr::starts_with('purpose_in_life')),
                            ~gsub('_in_life', '', .))
     verbose_prefix = T
 
-  } if (any(grepl('pil', names(input_df)))){   # extends pil prefix if necessary
+  }
+  if (any(grepl('pil', names(input_df)))){   # extends pil prefix if necessary
     df <- dplyr::rename_at(input_df, dplyr::vars(dplyr::starts_with('pil')),
                            ~gsub('pil', 'purpose', .))
     abrv_prefix = T
 
-  } if (any(grepl('purpose', names(input_df)))){ # checks if standard prefix is used
+  }
+  if (any(grepl('purpose', names(input_df)))){ # checks if standard prefix is used
     df <- input_df
     standard_prefix = T
   }
