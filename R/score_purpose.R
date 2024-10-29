@@ -232,7 +232,8 @@ score_purpose <- function(input_df, form = 'full', missing_threshold = .5, tscor
 
   purpose_num <- dplyr::mutate(purpose_num,
                                purpose_NApct = rowSums(is.na(dplyr::select(purpose_num, dplyr::matches('purpose(.*)_num'))))
-                               / ncol(dplyr::select(purpose_num, dplyr::matches('purpose(.*)_num'))))
+                               / ncol(dplyr::select(purpose_num, dplyr::matches('purpose(.*)_num')))
+                               * 100)
 
 
 
